@@ -1,0 +1,54 @@
+#overlay {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9000;
+    position: absolute;
+}
+
+#mouse, #keyboard {
+    bottom: 10px;
+    position: absolute;
+}
+
+#mouse {
+    left: 10px;
+}
+
+#keyboard {
+    left: 80px;
+}
+
+#keyboard .combo {
+    display: block;
+    min-width: 100px;
+    min-height: 66px;
+    margin-top: 15px;
+    white-space: nowrap;
+}
+
+#keyboard .combo .key,
+#keyboard .combo .sep {
+    color: #fff;
+    padding: 5px 10px;
+    margin: 10px 0;
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    font-family: monospace;
+    display: inline-block;
+    background-color: #ccc;
+    border-radius: 6px;
+    white-space: pre-wrap;
+}
+
+#keyboard .combo .sep {
+    color: #555;
+    background-color: transparent;
+}
+
+#keyboard .combo .str {
+    text-align: left;
+}
