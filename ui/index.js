@@ -75,32 +75,64 @@ function getModifier(data) {
 }
 
 var lastInputTime = 0;
-var comboTimeout  = 500;
-var comboCount    = 0;
+var lastInputKey  = null;
+var comboTimeout  = 1000;
+var specialsChars = {
+    'Space': [' '],
+    'Tab'  : ['\t'],
+    'Enter': ['&crarr;', '\n']
+};
+var lastCounter = null;
+var reapetCount = 2;
 
-function clearInputString(s) {
-    return s.replace('Space', ' ').replace('Tab', '\t').replace('Enter', '\n');
+function isPrintable(data) {
+    return data.printable || specialsChars[getPrintableKey(data)];
 }
 
 function waitForInputString(data) {
     var key  = getPrintableKey(data);
     var time = Date.now();
 
-    if (time - lastInputTime < comboTimeout) {
-        key = clearInputString(key);
-        lastInputTime = time;
-        appendKey(key);
-    }
-    else {
-        var keys = getModifiersKeys();
-        keys.push(key);
-        addCombo(keys);
-
-        lastInputTime = time;
-
-        if (['Space', 'Tab', 'Enter'].indexOf(key) !== -1) {
-            lastInputTime = 0;
+    if (isPrintable(data) && time - lastInputTime < comboTimeout) {
+        var sc = specialsChars[key];
+        if (sc) {
+            key = newKey(sc[0]).outerHTML + (sc[1] || '');
         }
+        lastInputKey  = null;
+        lastInputTime = time;
+        return appendKey(key);
+    }
+
+    if (key === lastInputKey && time - lastReapetTime < comboTimeout) {
+        var counter = lastCounter || newCounter();
+        counter.innerHTML = 'x' + reapetCount;
+
+        if (! lastCounter) {
+            appendKey(counter.outerHTML);
+        }
+        else {
+            var parent = keyboard.lastChild.lastChild;
+            parent.replaceChild(counter, parent.lastChild);
+        }
+
+        lastReapetTime = time;
+        lastCounter    = counter;
+        return reapetCount++;
+    }
+
+    var keys = getModifiersKeys();
+
+    keys.push(key);
+    addCombo(keys);
+
+    lastInputKey   = key;
+    lastInputTime  = time;
+    lastReapetTime = time;
+    lastCounter    = null;
+    reapetCount    = 2;
+
+    if (! data.printable) {
+        lastInputTime = 0;
     }
 }
 
@@ -183,6 +215,13 @@ function newSep() {
     var sep = document.createElement("div");
     sep.className = 'sep';
     sep.innerHTML = '+';
+    return sep;
+}
+
+function newCounter() {
+    var sep = document.createElement("div");
+    sep.className = 'counter';
+    sep.innerHTML = 'x2';
     return sep;
 }
 
